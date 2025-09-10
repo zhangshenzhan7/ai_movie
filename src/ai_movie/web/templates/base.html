@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block description %}AI驱动的智能视频生成平台，只需输入文字或上传图片，即可一键生成高质量视频内容{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}AI视频生成,人工智能,视频制作,自动生成视频,视频创作平台{% endblock %}">
+    <meta name="author" content="AI Movie">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}{% block title %}AI 视频生成平台{% endblock %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}AI驱动的智能视频生成平台，只需输入文字或上传图片，即可一键生成高质量视频内容{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}/static/images/og-image.jpg{% endblock %}">
+    <meta property="og:url" content="{{ request.url }}">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{% block title %}AI 视频生成平台{% endblock %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}AI驱动的智能视频生成平台，只需输入文字或上传图片，即可一键生成高质量视频内容{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}/static/images/og-image.jpg{% endblock %}">
+    
+    <title>{% block title %}AI 视频生成平台{% endblock %}</title>
+    
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
+    <!-- Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/enhanced.css" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "AI 视频生成平台",
+        "description": "AI驱动的智能视频生成平台，只需输入文字或上传图片，即可一键生成高质量视频内容",
+        "url": "{{ request.url_root }}",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "CNY"
+        },
+        "creator": {
+            "@type": "Organization",
+            "name": "AI Movie"
+        },
+        "featureList": [
+            "文本生成视频",
+            "图片生成视频",
+            "AI智能配音",
+            "自动视频合成"
+        ]
+    }
+    </script>
+    <script>
+        // 配置 Tailwind 主题
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        dark: '#1D2129',
+                        'gray-medium': '#86909C',
+                        'gray-light': '#F2F3F5'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                        'hover': '0 20px 40px -5px rgba(0, 0, 0, 0.15)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        /* Optimized CSS utilities */
+        .content-auto {
+            content-visibility: auto;
+        }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .backdrop-blur {
+            backdrop-filter: blur(8px);
+        }
+        .transition-height {
+            transition: max-height 0.5s ease-in-out;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #165DFF;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Focus states for accessibility */
+        .focus-visible:focus {
+            outline: 2px solid #165DFF;
+            outline-offset: 2px;
+        }
+        
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+    
+    <!-- Preload critical JavaScript -->
+    <link rel="preload" href="/static/js/main.js" as="script">
+    <link rel="preload" href="/static/js/forms.js" as="script">
+    <link rel="preload" href="/static/js/accessibility.js" as="script">
+    
+    <!-- Additional SEO meta tags -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow">
+    <link rel="canonical" href="{{ request.url }}">
+    
+    <!-- PWA meta tags -->
+    <meta name="theme-color" content="#165DFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AI视频生成">
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col" role="document">
+    {% block content %}{% endblock %}
+
+    <!-- 通知提示 -->
+    <div id="notification" 
+         class="fixed top-24 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50 flex items-start"
+         role="alert"
+         aria-live="polite"
+         aria-atomic="true">
+        <div id="notificationIcon" class="mr-3 mt-0.5 text-success" aria-hidden="true">
+            <i class="fa fa-check-circle text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <h4 id="notificationTitle" class="font-semibold text-dark">操作成功</h4>
+            <p id="notificationMessage" class="text-gray-medium text-sm mt-1">您的操作已成功完成</p>
+        </div>
+        <button id="closeNotification" 
+                class="text-gray-medium hover:text-dark ml-2 focus-visible:focus"
+                aria-label="关闭通知">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+    </div>
+    
+    <!-- 全局加载遮罩 -->
+    <div id="globalLoading" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="loadingText">
+        <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <div class="spinner"></div>
+            <span id="loadingText" class="text-gray-700">正在处理中...</span>
+        </div>
+    </div>
+
+    <script>
+        // Global utilities and API configuration
+        const API_BASE_URL = '';
+        
+        // DOM element cache
+        const elements = {
+            notification: null,
+            notificationIcon: null,
+            notificationTitle: null,
+            notificationMessage: null,
+            closeNotification: null,
+            globalLoading: null,
+            loadingText: null
+        };
+        
+        // Initialize DOM elements when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cache DOM elements
+            elements.notification = document.getElementById('notification');
+            elements.notificationIcon = document.getElementById('notificationIcon');
+            elements.notificationTitle = document.getElementById('notificationTitle');
+            elements.notificationMessage = document.getElementById('notificationMessage');
+            elements.closeNotification = document.getElementById('closeNotification');
+            elements.globalLoading = document.getElementById('globalLoading');
+            elements.loadingText = document.getElementById('loadingText');
+            
+            // Event listeners
+            if (elements.closeNotification) {
+                elements.closeNotification.addEventListener('click', hideNotification);
+            }
+            
+            // Keyboard event for notification close
+            if (elements.closeNotification) {
+                elements.closeNotification.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        hideNotification();
+                    }
+                });
+            }
+        });
+        
+        // Show notification with enhanced accessibility
+        function showNotification(title, message, type = 'success', duration = 3000) {
+            if (!elements.notificationTitle || !elements.notificationMessage || !elements.notification) {
+                console.warn('Notification elements not found');
+                return;
+            }
+            
+            elements.notificationTitle.textContent = title;
+            elements.notificationMessage.textContent = message;
+            
+            // Reset classes
+            elements.notificationIcon.className = 'mr-3 mt-0.5';
+            
+            // Set icon and color based on type
+            const typeConfig = {
+                success: { color: 'text-success', icon: 'fa-check-circle' },
+                error: { color: 'text-danger', icon: 'fa-exclamation-circle' },
+                warning: { color: 'text-warning', icon: 'fa-exclamation-triangle' },
+                info: { color: 'text-primary', icon: 'fa-info-circle' }
+            };
+            
+            const config = typeConfig[type] || typeConfig.success;
+            elements.notificationIcon.className += ` ${config.color}`;
+            elements.notificationIcon.innerHTML = `<i class="fa ${config.icon} text-xl" aria-hidden="true"></i>`;
+            
+            // Show notification with animation
+            elements.notification.classList.remove('translate-x-full');
+            elements.notification.focus();
+            
+            // Auto-hide after specified duration
+            if (duration > 0) {
+                setTimeout(hideNotification, duration);
+            }
+        }
+        
+        // Hide notification
+        function hideNotification() {
+            if (elements.notification) {
+                elements.notification.classList.add('translate-x-full');
+            }
+        }
+        
+        // Show global loading
+        function showLoading(text = '正在处理中...') {
+            if (elements.globalLoading && elements.loadingText) {
+                elements.loadingText.textContent = text;
+                elements.globalLoading.classList.remove('hidden');
+                elements.globalLoading.classList.add('flex');
+                // Prevent body scroll
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        // Hide global loading
+        function hideLoading() {
+            if (elements.globalLoading) {
+                elements.globalLoading.classList.add('hidden');
+                elements.globalLoading.classList.remove('flex');
+                // Restore body scroll
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Enhanced fetch with error handling and loading states
+        async function apiRequest(url, options = {}) {
+            try {
+                const response = await fetch(API_BASE_URL + url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                showNotification('请求失败', error.message || '网络请求失败，请稍后重试', 'error');
+                throw error;
+            }
+        }
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            showNotification('系统错误', '发生了一个错误，请刷新页面重试', 'error');
+        });
+        
+        // Global promise rejection handler
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+            showNotification('系统错误', '发生了一个错误，请刷新页面重试', 'error');
+        });
+        
+        {% block scripts %}{% endblock %}
+        
+        // Load external scripts after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load authentication manager first with proper error handling
+            const authScript = document.createElement('script');
+            authScript.src = '/static/js/auth.js';
+            authScript.onload = function() {
+                console.log('Auth manager loaded successfully');
+                // 认证脚本加载完成后，立即检查状态
+                if (window.authManager) {
+                    window.authManager.checkAuthStatus();
+                }
+            };
+            authScript.onerror = function() {
+                console.error('Failed to load auth manager');
+            };
+            document.head.appendChild(authScript);
+            
+            // Load other scripts with proper ordering
+            const loadScriptsSequentially = [
+                '/static/js/accessibility.js',
+                '/static/js/forms.js',
+                '/static/js/main.js'
+            ];
+            
+            let currentScriptIndex = 0;
+            function loadNextScript() {
+                if (currentScriptIndex < loadScriptsSequentially.length) {
+                    const script = document.createElement('script');
+                    script.src = loadScriptsSequentially[currentScriptIndex];
+                    script.onload = function() {
+                        currentScriptIndex++;
+                        loadNextScript();
+                    };
+                    script.onerror = function() {
+                        console.error('Failed to load script:', script.src);
+                        currentScriptIndex++;
+                        loadNextScript();
+                    };
+                    document.head.appendChild(script);
+                }
+            }
+            
+            // 延迟加载其他脚本，确保auth.js先加载
+            setTimeout(loadNextScript, 100);
+        });
+        
+        // Add skip link for accessibility
+        (function() {
+            const skipLink = document.createElement('a');
+            skipLink.href = '#main-content';
+            skipLink.textContent = '跳转到主内容';
+            skipLink.className = 'sr-only focus:not-sr-only fixed top-4 left-4 z-50 bg-primary text-white px-4 py-2 rounded-md focus-visible:focus';
+            skipLink.setAttribute('aria-label', '跳过导航，直接到主内容');
+            document.body.insertBefore(skipLink, document.body.firstChild);
+        })();
+    </script>
+    
+    <!-- Include modals -->
+    {% include "login_modal.html" %}
+    {% include "register_modal.html" %}
+</body>
+</html>

@@ -1,0 +1,243 @@
+<nav id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur shadow-sm" role="navigation" aria-label="主导航">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <!-- Logo and Brand -->
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-play-circle text-primary text-3xl" aria-hidden="true"></i>
+                <a href="/" class="text-xl font-bold bg-gradient-to-r from-primary to-secondary text-gradient focus-visible:focus" aria-label="返回首页">
+                    AI 视频生成
+                </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-8" role="menubar">
+                <a href="#features" 
+                   class="text-gray-medium hover:text-primary transition-colors focus-visible:focus" 
+                   role="menuitem"
+                   tabindex="0">
+                   功能
+                </a>
+                <a href="#how-it-works" 
+                   class="text-gray-medium hover:text-primary transition-colors focus-visible:focus" 
+                   role="menuitem"
+                   tabindex="0">
+                   使用方法
+                </a>
+                <a href="#examples" 
+                   class="text-gray-medium hover:text-primary transition-colors focus-visible:focus" 
+                   role="menuitem"
+                   tabindex="0">
+                   示例
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <!-- Login/Register Buttons -->
+                <button id="loginBtn" 
+                        class="md:block px-5 py-2 rounded-full text-primary border border-primary hover:bg-primary/5 transition-colors focus-visible:focus"
+                        aria-label="用户登录">
+                    登录
+                </button>
+                <button id="registerBtn" 
+                        class="md:block px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg focus-visible:focus"
+                        aria-label="用户注册">
+                    注册
+                </button>
+                
+                <!-- User Menu -->
+                <div id="userMenu" class="hidden items-center space-x-2 cursor-pointer group relative">
+                    <img id="userAvatar" 
+                         src="https://picsum.photos/id/64/200/200" 
+                         alt="用户头像" 
+                         class="w-8 h-8 rounded-full object-cover border-2 border-primary focus-visible:focus" 
+                         onclick="window.location.href='/dashboard'"
+                         tabindex="0"
+                         role="button"
+                         aria-label="进入个人中心">
+                    <span id="usernameDisplay" class="font-medium">用户名</span>
+                    <i class="fa fa-chevron-down text-xs text-gray-medium group-hover:text-primary transition-colors" aria-hidden="true"></i>
+
+                    <!-- Dropdown Menu -->
+                    <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-card py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200" 
+                         role="menu"
+                         aria-labelledby="userAvatar">
+                        <a href="/dashboard" 
+                           class="block px-4 py-2 hover:bg-gray-light transition-colors focus-visible:focus"
+                           role="menuitem"
+                           tabindex="0">
+                            <i class="fa fa-history mr-2 text-gray-medium" aria-hidden="true"></i>个人中心
+                        </a>
+                        <button id="logoutLink" 
+                                class="w-full text-left block px-4 py-2 hover:bg-gray-light transition-colors focus-visible:focus"
+                                role="menuitem"
+                                tabindex="0">
+                            <i class="fa fa-sign-out mr-2 text-gray-medium" aria-hidden="true"></i>退出登录
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" 
+                        class="md:hidden text-gray-medium hover:text-primary focus-visible:focus"
+                        aria-label="打开移动端菜单"
+                        aria-expanded="false"
+                        aria-controls="mobileMenu">
+                    <i class="fa fa-bars text-xl" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="md:hidden hidden pb-4" role="menu" aria-labelledby="mobileMenuBtn">
+            <div class="flex flex-col space-y-3">
+                <a href="#features" 
+                   class="text-gray-medium hover:text-primary transition-colors py-2 focus-visible:focus" 
+                   role="menuitem"
+                   tabindex="0">
+                   功能
+                </a>
+                <a href="#how-it-works" 
+                   class="text-gray-medium hover:text-primary transition-colors py-2 focus-visible:focus" 
+                   role="menuitem"
+                   tabindex="0">
+                   使用方法
+                </a>
+                <a href="#examples" 
+                   class="text-gray-medium hover:text-primary transition-colors py-2 focus-visible:focus" 
+                   role="menuitem"
+                   tabindex="0">
+                   示例
+                </a>
+                <div class="flex space-x-3 pt-2">
+                    <button id="mobileLoginBtn" 
+                            class="flex-1 px-4 py-2 rounded-full text-primary border border-primary hover:bg-primary/5 transition-colors focus-visible:focus">
+                        登录
+                    </button>
+                    <button id="mobileRegisterBtn" 
+                            class="flex-1 px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors shadow-md focus-visible:focus">
+                        注册
+                    </button>
+                </div>
+                
+                <!-- Mobile User Menu -->
+                <div id="mobileUserMenu" class="hidden pt-2 border-t border-gray-light">
+                    <div class="flex items-center space-x-3 py-2">
+                        <img id="mobileUserAvatar" 
+                             src="https://picsum.photos/id/64/200/200" 
+                             alt="用户头像" 
+                             class="w-8 h-8 rounded-full object-cover border-2 border-primary" 
+                             onclick="window.location.href='/dashboard'">
+                        <span id="mobileUsernameDisplay" class="font-medium">用户名</span>
+                    </div>
+                    <div class="flex flex-col space-y-2 mt-2">
+                        <a href="/dashboard" 
+                           class="flex items-center px-4 py-2 hover:bg-gray-light transition-colors rounded-md focus-visible:focus">
+                            <i class="fa fa-history mr-2 text-gray-medium" aria-hidden="true"></i>个人中心
+                        </a>
+                        <button id="mobileLogoutLink" 
+                                class="w-full text-left flex items-center px-4 py-2 hover:bg-gray-light transition-colors rounded-md focus-visible:focus">
+                            <i class="fa fa-sign-out mr-2 text-gray-medium" aria-hidden="true"></i>退出登录
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Navigation JavaScript -->
+<script>
+(function() {
+    'use strict';
+    
+    // DOM elements cache
+    let navElements = {};
+    
+    // Initialize navigation functionality
+    function initNavigation() {
+        // Cache DOM elements
+        navElements = {
+            mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+            mobileMenu: document.getElementById('mobileMenu')
+        };
+        
+        // Setup event listeners
+        setupEventListeners();
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+        // Mobile menu toggle
+        if (navElements.mobileMenuBtn && navElements.mobileMenu) {
+            navElements.mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            navElements.mobileMenuBtn.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMobileMenu();
+                }
+            });
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (navElements.mobileMenu && 
+                !navElements.mobileMenu.contains(e.target) && 
+                !navElements.mobileMenuBtn.contains(e.target) &&
+                !navElements.mobileMenu.classList.contains('hidden')) {
+                closeMobileMenu();
+            }
+        });
+        
+        // ESC key to close mobile menu
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && navElements.mobileMenu && 
+                !navElements.mobileMenu.classList.contains('hidden')) {
+                closeMobileMenu();
+                navElements.mobileMenuBtn.focus();
+            }
+        });
+    }
+    
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+        if (!navElements.mobileMenu || !navElements.mobileMenuBtn) return;
+        
+        const isHidden = navElements.mobileMenu.classList.contains('hidden');
+        
+        if (isHidden) {
+            openMobileMenu();
+        } else {
+            closeMobileMenu();
+        }
+    }
+    
+    // Open mobile menu
+    function openMobileMenu() {
+        if (!navElements.mobileMenu || !navElements.mobileMenuBtn) return;
+        
+        navElements.mobileMenu.classList.remove('hidden');
+        navElements.mobileMenuBtn.setAttribute('aria-expanded', 'true');
+        
+        // Focus first menu item
+        const firstMenuItem = navElements.mobileMenu.querySelector('a, button');
+        if (firstMenuItem) {
+            setTimeout(() => firstMenuItem.focus(), 100);
+        }
+    }
+    
+    // Close mobile menu
+    function closeMobileMenu() {
+        if (!navElements.mobileMenu || !navElements.mobileMenuBtn) return;
+        
+        navElements.mobileMenu.classList.add('hidden');
+        navElements.mobileMenuBtn.setAttribute('aria-expanded', 'false');
+    }
+    
+    // Initialize when DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNavigation);
+    } else {
+        initNavigation();
+    }
+})();
+</script>

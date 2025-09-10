@@ -1,0 +1,1071 @@
+    <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 视频生成平台 - 仪表板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        // 配置 Tailwind 主题
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        dark: '#1D2129',
+                        'gray-medium': '#86909C',
+                        'gray-light': '#F2F3F5'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                        'hover': '0 20px 40px -5px rgba(0, 0, 0, 0.15)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .backdrop-blur {
+                backdrop-filter: blur(8px);
+            }
+            .transition-height {
+                transition: max-height 0.5s ease-in-out;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa fa-play-circle text-primary text-3xl"></i>
+                    <a href="/" class="text-xl font-bold bg-gradient-to-r from-primary to-secondary text-gradient">AI 视频生成</a>
+                </div>
+
+                <!-- 桌面导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-medium hover:text-primary transition-colors">首页</a>
+                    <a href="#dashboard" class="text-gray-medium hover:text-primary transition-colors">仪表板</a>
+                    <a href="#history" class="text-gray-medium hover:text-primary transition-colors">历史记录</a>
+                </nav>
+
+                <div class="flex items-center space-x-4">
+                    <!-- 登录/注册按钮 -->
+                    <button id="loginBtn" class="md:block px-5 py-2 rounded-full text-primary border border-primary hover:bg-primary/5 transition-colors">登录</button>
+                    <button id="registerBtn" class="md:block px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">注册</button>
+                    
+                    <!-- 用户菜单 -->
+                    <!-- 在导航栏用户菜单部分添加点击事件 -->
+                    <div id="userMenu" class="hidden items-center space-x-2 cursor-pointer group">
+                        <img id="userAvatar" src="https://picsum.photos/id/64/200/200" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary" onclick="window.location.href='/dashboard'">
+                        <span id="usernameDisplay" class="font-medium">用户名</span>
+                        <i class="fa fa-chevron-down text-xs text-gray-medium group-hover:text-primary transition-colors"></i>
+
+                        <!-- 下拉菜单 -->
+                        <div class="absolute right-4 mt-2 w-48 bg-white rounded-lg shadow-card py-2 z-50 hidden group-hover:block">
+                            <a href="#profile" class="block px-4 py-2 hover:bg-gray-light transition-colors">
+                                <i class="fa fa-user mr-2 text-gray-medium"></i>个人资料
+                            </a>
+                            <a href="#settings" class="block px-4 py-2 hover:bg-gray-light transition-colors">
+                                <i class="fa fa-cog mr-2 text-gray-medium"></i>设置
+                            </a>
+                            <a href="#" id="logoutLink" class="block px-4 py-2 hover:bg-gray-light transition-colors">
+                                <i class="fa fa-sign-out mr-2 text-gray-medium"></i>退出登录
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 移动端菜单按钮 -->
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-medium hover:text-primary">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 移动端导航菜单 -->
+            <div id="mobileMenu" class="md:hidden hidden pb-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="/" class="text-gray-medium hover:text-primary transition-colors py-2">首页</a>
+                    <a href="#dashboard" class="text-gray-medium hover:text-primary transition-colors py-2">仪表板</a>
+                    <a href="#history" class="text-gray-medium hover:text-primary transition-colors py-2">历史记录</a>
+                    <div class="flex space-x-3 pt-2">
+                        <button id="mobileLoginBtn" class="flex-1 px-4 py-2 rounded-full text-primary border border-primary hover:bg-primary/5 transition-colors">登录</button>
+                        <button id="mobileRegisterBtn" class="flex-1 px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors shadow-md">注册</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow pt-20">
+        <!-- 仪表板区域 -->
+        <section id="dashboard" class="py-16 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">用户仪表板</h1>
+                    <p class="text-gray-medium text-lg max-w-2xl mx-auto">管理您的视频生成任务和账户设置</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- 左侧：用户信息和统计 -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-2xl shadow-card p-6 mb-8">
+                            <div class="flex items-center mb-6">
+                                <img src="https://picsum.photos/id/64/200/200" alt="用户头像" class="w-16 h-16 rounded-full object-cover border-2 border-primary">
+                                <div class="ml-4">
+                                    <h2 class="text-xl font-bold" id="dashboardUsername">用户名</h2>
+                                    <p class="text-gray-medium" id="dashboardEmail">user@example.com</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-primary/5 rounded-lg p-4 text-center">
+                                    <div class="text-2xl font-bold text-primary" id="totalVideos">0</div>
+                                    <div class="text-gray-medium text-sm">总视频数</div>
+                                </div>
+                                <div class="bg-success/5 rounded-lg p-4 text-center">
+                                    <div class="text-2xl font-bold text-success" id="completedVideos">0</div>
+                                    <div class="text-gray-medium text-sm">已完成</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 快捷操作 -->
+                        <div class="bg-white rounded-2xl shadow-card p-6">
+                            <h3 class="text-lg font-bold mb-4">快捷操作</h3>
+                            <div class="space-y-3">
+                                <button id="newVideoBtn" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-light transition-colors">
+                                    <i class="fa fa-plus-circle text-primary text-xl mr-3"></i>
+                                    <span>创建新视频</span>
+                                </button>
+                                <button class="w-full flex items-center p-3 rounded-lg hover:bg-gray-light transition-colors">
+                                    <i class="fa fa-history text-primary text-xl mr-3"></i>
+                                    <span>查看历史记录</span>
+                                </button>
+                                <button class="w-full flex items-center p-3 rounded-lg hover:bg-gray-light transition-colors">
+                                    <i class="fa fa-cog text-primary text-xl mr-3"></i>
+                                    <span>账户设置</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：视频列表 -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-2xl shadow-card p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-bold">最近视频</h3>
+                                <button id="refreshBtn" class="text-primary hover:text-primary/80">
+                                    <i class="fa fa-refresh mr-2"></i>刷新
+                                </button>
+                            </div>
+
+                            <div id="videoList" class="space-y-4">
+                                <!-- 视频项将通过 JavaScript 动态添加 -->
+                                <div class="text-center text-gray-medium py-12">
+                                    <i class="fa fa-film text-5xl mb-4 opacity-30"></i>
+                                    <p>暂无视频记录</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 历史记录区域 -->
+        <section id="history" class="py-16 bg-gray-light hidden">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">我的视频历史</h2>
+                    <p class="text-gray-medium text-lg max-w-2xl mx-auto">查看和管理您生成的所有视频</p>
+                </div>
+
+                <div class="max-w-5xl mx-auto">
+                    <div class="bg-white rounded-2xl shadow-card p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold">所有视频</h3>
+                            <div class="flex space-x-2">
+                                <select id="filterStatus" class="px-3 py-2 rounded-lg border border-gray-300 text-gray-medium">
+                                    <option value="all">全部状态</option>
+                                    <option value="completed">已完成</option>
+                                    <option value="processing">处理中</option>
+                                    <option value="failed">已失败</option>
+                                </select>
+                                <button id="searchBtn" class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="historyList" class="space-y-4">
+                            <!-- 历史记录项将通过 JavaScript 动态添加 -->
+                            <div class="text-center text-gray-medium py-12">
+                                <i class="fa fa-film text-5xl mb-4 opacity-30"></i>
+                                <p>您还没有生成任何视频</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12 mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <i class="fa fa-play-circle text-primary text-3xl"></i>
+                        <span class="text-xl font-bold">AI 视频生成</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        利用先进的人工智能技术，让视频创作变得简单高效。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-youtube-play"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">产品</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">文本生成视频</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">图片生成视频</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">视频编辑</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API 接口</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">定价</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">资源</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">帮助中心</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">教程</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">示例</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">博客</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">社区</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">公司</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">服务条款</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">加入我们</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500 text-sm">
+                <p>&copy; 2023 AI 视频生成平台. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 模态框 - 登录 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-card w-full max-w-md transform transition-all">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">登录</h3>
+                    <button id="closeLoginModal" class="text-gray-medium hover:text-dark">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-medium mb-2">邮箱</label>
+                        <input type="email" id="loginEmail" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-medium mb-2">密码</label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="请输入密码" required>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors mb-4">
+                        登录
+                    </button>
+
+                    <p class="text-center text-gray-medium">
+                        还没有账号? <button type="button" id="switchToRegister" class="text-primary font-medium hover:underline">立即注册</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框 - 注册 -->
+    <div id="registerModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-card w-full max-w-md transform transition-all">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">注册</h3>
+                    <button id="closeRegisterModal" class="text-gray-medium hover:text-dark">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <form id="registerForm">
+                    <div class="mb-4">
+                        <label for="registerUsername" class="block text-sm font-medium text-gray-medium mb-2">用户名</label>
+                        <input type="text" id="registerUsername" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="请输入用户名" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-medium mb-2">邮箱</label>
+                        <input type="email" id="registerEmail" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-medium mb-2">密码</label>
+                        <input type="password" id="registerPassword" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="至少 6 个字符" required>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors mb-4">
+                        注册
+                    </button>
+
+                    <p class="text-center text-gray-medium">
+                        已有账号? <button type="button" id="switchToLogin" class="text-primary font-medium hover:underline">立即登录</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div id="notification" class="fixed top-24 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50 flex items-start">
+        <div id="notificationIcon" class="mr-3 mt-0.5 text-success">
+            <i class="fa fa-check-circle text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <h4 id="notificationTitle" class="font-semibold text-dark">操作成功</h4>
+            <p id="notificationMessage" class="text-gray-medium text-sm mt-1">您的操作已成功完成</p>
+        </div>
+        <button id="closeNotification" class="text-gray-medium hover:text-dark ml-2">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <!-- 视频预览模态框 -->
+    <div id="videoPreviewModal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-card w-full max-w-4xl transform transition-all">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold" id="previewVideoTitle">视频预览</h3>
+                    <button id="closeVideoPreviewModal" class="text-gray-medium hover:text-dark">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-6">
+                    <video id="previewVideoPlayer" controls class="w-full h-full object-contain">
+                        您的浏览器不支持视频播放
+                    </video>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button id="closePreviewBtn" class="px-6 py-2 rounded-lg border border-gray-300 text-gray-medium hover:bg-gray-light transition-colors">
+                        关闭
+                    </button>
+                    <a id="downloadPreviewVideoBtn" href="#" target="_blank" class="px-6 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors">
+                        <i class="fa fa-download mr-2"></i>下载视频
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 基础 URL
+        const API_BASE_URL = '';
+
+        // DOM 元素
+        const navbar = document.getElementById('navbar');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+        const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+        const userMenu = document.getElementById('userMenu');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const userAvatar = document.getElementById('userAvatar');
+        const logoutLink = document.getElementById('logoutLink');
+        const newVideoBtn = document.getElementById('newVideoBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const dashboard = document.getElementById('dashboard');
+        const historySection = document.getElementById('history');
+        const dashboardUsername = document.getElementById('dashboardUsername');
+        const dashboardEmail = document.getElementById('dashboardEmail');
+        const totalVideos = document.getElementById('totalVideos');
+        const completedVideos = document.getElementById('completedVideos');
+        const videoList = document.getElementById('videoList');
+        const historyList = document.getElementById('historyList');
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const closeRegisterModal = document.getElementById('closeRegisterModal');
+        const switchToRegister = document.getElementById('switchToRegister');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const notification = document.getElementById('notification');
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const closeNotification = document.getElementById('closeNotification');
+        
+        // 添加视频预览模态框相关DOM元素
+        const videoPreviewModal = document.getElementById('videoPreviewModal');
+        const closeVideoPreviewModal = document.getElementById('closeVideoPreviewModal');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const previewVideoPlayer = document.getElementById('previewVideoPlayer');
+        const downloadPreviewVideoBtn = document.getElementById('downloadPreviewVideoBtn');
+        
+        // 打开视频预览模态框
+        function openVideoPreview(videoId, videoUrl, videoTitle) {
+            if (videoUrl) {
+                // 确保视频URL是完整可访问的链接
+                let finalVideoUrl = videoUrl;
+                if (videoUrl && !videoUrl.startsWith('http')) {
+                    // 如果是相对路径，构建完整URL
+                    const baseUrl = window.location.origin;
+                    finalVideoUrl = baseUrl + (videoUrl.startsWith('/') ? videoUrl : '/' + videoUrl);
+                }
+                
+                previewVideoPlayer.src = finalVideoUrl;
+                downloadPreviewVideoBtn.href = finalVideoUrl;
+                document.getElementById('previewVideoTitle').textContent = videoTitle || '视频预览';
+                videoPreviewModal.classList.remove('hidden');
+                videoPreviewModal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            } else {
+                showNotification('错误', '无法播放视频，视频链接无效', 'error');
+            }
+        }
+        
+        // 关闭视频预览模态框
+        function closeVideoPreview() {
+            videoPreviewModal.classList.add('hidden');
+            videoPreviewModal.classList.remove('flex');
+            document.body.style.overflow = '';
+            previewVideoPlayer.pause();
+            previewVideoPlayer.src = '';
+        }
+        
+        // 绑定关闭事件
+        closeVideoPreviewModal.addEventListener('click', closeVideoPreview);
+        closePreviewBtn.addEventListener('click', closeVideoPreview);
+        
+        // 点击模态框外部关闭
+        videoPreviewModal.addEventListener('click', (e) => {
+            if (e.target === videoPreviewModal) closeVideoPreview();
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow');
+                navbar.classList.remove('py-4');
+            } else {
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2', 'shadow');
+            }
+        });
+
+        // 移动端菜单切换
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 模态框控制
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        loginBtn.addEventListener('click', () => openModal(loginModal));
+        registerBtn.addEventListener('click', () => openModal(registerModal));
+        mobileLoginBtn.addEventListener('click', () => {
+            openModal(loginModal);
+            mobileMenu.classList.add('hidden');
+        });
+        mobileRegisterBtn.addEventListener('click', () => {
+            openModal(registerModal);
+            mobileMenu.classList.add('hidden');
+        });
+        closeLoginModal.addEventListener('click', () => closeModal(loginModal));
+        closeRegisterModal.addEventListener('click', () => closeModal(registerModal));
+        switchToRegister.addEventListener('click', () => {
+            closeModal(loginModal);
+            openModal(registerModal);
+        });
+        switchToLogin.addEventListener('click', () => {
+            closeModal(registerModal);
+            openModal(loginModal);
+        });
+
+        // 点击模态框外部关闭
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) closeModal(loginModal);
+        });
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) closeModal(registerModal);
+        });
+
+        // 显示通知
+        function showNotification(title, message, type = 'success') {
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+
+            // 设置图标和颜色
+            notificationIcon.className = '';
+            if (type === 'success') {
+                notificationIcon.className = 'mr-3 mt-0.5 text-success';
+                notificationIcon.innerHTML = '<i class="fa fa-check-circle text-xl"></i>';
+            } else if (type === 'error') {
+                notificationIcon.className = 'mr-3 mt-0.5 text-danger';
+                notificationIcon.innerHTML = '<i class="fa fa-exclamation-circle text-xl"></i>';
+            } else if (type === 'warning') {
+                notificationIcon.className = 'mr-3 mt-0.5 text-warning';
+                notificationIcon.innerHTML = '<i class="fa fa-exclamation-triangle text-xl"></i>';
+            }
+
+            // 显示通知
+            notification.classList.remove('translate-x-full');
+
+            // 3秒后自动关闭
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        closeNotification.addEventListener('click', () => {
+            notification.classList.add('translate-x-full');
+        });
+
+        // 区域显示控制
+        function showSection(section) {
+            dashboard.classList.add('hidden');
+            historySection.classList.add('hidden');
+
+            if (section) {
+                section.classList.remove('hidden');
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // 导航链接事件
+        document.querySelectorAll('a[href="#dashboard"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(dashboard);
+            });
+        });
+
+        document.querySelectorAll('a[href="#history"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(historySection);
+                loadHistory();
+            });
+        });
+
+        newVideoBtn.addEventListener('click', () => {
+            window.location.href = '/';
+        });
+
+        refreshBtn.addEventListener('click', () => {
+            loadDashboard();
+        });
+
+        // 检查认证状态
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/check-auth`, {
+                    method: 'GET',
+                    credentials: 'include', // 包含 cookies
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                console.log('认证状态检查结果:', data); // 调试日志
+
+                if (data.authenticated) {
+                    // 用户已登录
+                    console.log('用户已登录，隐藏登录/注册按钮'); // 调试日志
+                    
+                    // 隐藏登录/注册按钮
+                    if (loginBtn) loginBtn.classList.add('hidden');
+                    if (registerBtn) registerBtn.classList.add('hidden');
+                    if (mobileLoginBtn) mobileLoginBtn.classList.add('hidden');
+                    if (mobileRegisterBtn) mobileRegisterBtn.classList.add('hidden');
+                    
+                    // 显示用户菜单
+                    if (userMenu) {
+                        userMenu.classList.remove('hidden');
+                        userMenu.classList.add('flex');
+                    }
+
+                    // 更新用户信息
+                    if (data.user) {
+                        const username = data.user.username || data.user.email;
+                        if (usernameDisplay) usernameDisplay.textContent = username;
+                        if (dashboardUsername) dashboardUsername.textContent = username;
+                        if (dashboardEmail) dashboardEmail.textContent = data.user.email;
+                        
+                        // 更新头像
+                        if (userAvatar) {
+                            const avatarUrl = `https://picsum.photos/id/${data.user.id % 100}/200/200`;
+                            userAvatar.src = avatarUrl;
+                        }
+                    }
+
+                    // 加载仪表板数据
+                    loadDashboard();
+                    return true;
+                } else {
+                    // 用户未登录
+                    console.log('用户未登录，显示登录/注册按钮'); // 调试日志
+                    
+                    // 显示登录/注册按钮
+                    if (loginBtn) loginBtn.classList.remove('hidden');
+                    if (registerBtn) registerBtn.classList.remove('hidden');
+                    if (mobileLoginBtn) mobileLoginBtn.classList.remove('hidden');
+                    if (mobileRegisterBtn) mobileRegisterBtn.classList.remove('hidden');
+                    
+                    // 隐藏用户菜单
+                    if (userMenu) {
+                        userMenu.classList.add('hidden');
+                        userMenu.classList.remove('flex');
+                    }
+
+                    // 未登录时重定向到主页
+                    window.location.href = '/';
+                    return false;
+                }
+            } catch (error) {
+                console.error('检查认证状态失败:', error);
+                showNotification('错误', '无法连接到服务器', 'error');
+                return false;
+            }
+        }
+
+        // 加载仪表板数据
+        async function loadDashboard() {
+            try {
+                // 加载视频统计
+                const statsResponse = await fetch(`${API_BASE_URL}/video-stats`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const statsData = await statsResponse.json();
+                if (statsData.status === 'success') {
+                    totalVideos.textContent = statsData.total_videos;
+                    completedVideos.textContent = statsData.completed_videos;
+                }
+
+                // 加载最近视频
+                const videosResponse = await fetch(`${API_BASE_URL}/recent-videos`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const videosData = await videosResponse.json();
+                if (videosData.status === 'success') {
+                    renderVideoList(videosData.videos);
+                }
+            } catch (error) {
+                console.error('加载仪表板数据失败:', error);
+                showNotification('错误', '无法加载仪表板数据', 'error');
+            }
+        }
+
+        // 渲染视频列表
+        function renderVideoList(videos) {
+            if (videos.length === 0) {
+                videoList.innerHTML = `
+                    <div class="text-center text-gray-medium py-12">
+                        <i class="fa fa-film text-5xl mb-4 opacity-30"></i>
+                        <p>暂无视频记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let videoItems = '';
+            videos.slice(0, 5).forEach(video => {
+                const statusClass = getStatusClass(video.status);
+                const statusText = getStatusText(video.status);
+                
+                videoItems += `
+                    <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-light transition-colors">
+                        <div class="flex-shrink-0 w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-film text-gray-medium"></i>
+                        </div>
+                        <div class="ml-4 flex-grow">
+                            <h4 class="font-semibold truncate">${video.title || '未命名视频'}</h4>
+                            <p class="text-sm text-gray-medium">${new Date(video.created_at).toLocaleString()}</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div class="ml-4 flex-shrink-0">
+                            ${video.status === 'completed' ? 
+                                `<button class="text-primary hover:text-primary/80 preview-video-btn" data-video-id="${video.id}" data-video-url="${video.video_url}" data-video-title="${video.title}">
+                                    <i class="fa fa-eye"></i>
+                                </button>` : 
+                                `<button class="text-gray-medium hover:text-dark">
+                                    <i class="fa fa-refresh"></i>
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+
+            videoList.innerHTML = videoItems;
+            
+            // 为预览按钮添加事件监听器
+            document.querySelectorAll('.preview-video-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const videoId = e.currentTarget.getAttribute('data-video-id');
+                    const videoUrl = e.currentTarget.getAttribute('data-video-url');
+                    const videoTitle = e.currentTarget.getAttribute('data-video-title');
+                    openVideoPreview(videoId, videoUrl, videoTitle);
+                });
+            });
+        }
+
+        // 加载历史记录
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/videos`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    renderHistoryList(data.videos);
+                }
+            } catch (error) {
+                console.error('加载历史记录失败:', error);
+                showNotification('错误', '无法加载历史记录', 'error');
+            }
+        }
+
+        // 渲染历史记录列表
+        function renderHistoryList(videos) {
+            if (videos.length === 0) {
+                historyList.innerHTML = `
+                    <div class="text-center text-gray-medium py-12">
+                        <i class="fa fa-film text-5xl mb-4 opacity-30"></i>
+                        <p>您还没有生成任何视频</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let videoItems = '';
+            videos.forEach(video => {
+                const statusClass = getStatusClass(video.status);
+                const statusText = getStatusText(video.status);
+                
+                videoItems += `
+                    <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-light transition-colors">
+                        <div class="flex-shrink-0 w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-film text-gray-medium"></i>
+                        </div>
+                        <div class="ml-4 flex-grow">
+                            <h4 class="font-semibold truncate">${video.title || '未命名视频'}</h4>
+                            <p class="text-sm text-gray-medium">${new Date(video.created_at).toLocaleString()}</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex space-x-2">
+                            ${video.status === 'completed' ? 
+                                `<button class="text-primary hover:text-primary/80 preview-video-btn" data-video-id="${video.id}" data-video-url="${video.video_url}" data-video-title="${video.title}">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <a href="${video.video_url}" target="_blank" class="text-primary hover:text-primary/80">
+                                    <i class="fa fa-download"></i>
+                                </a>` : 
+                                `<button class="text-gray-medium hover:text-dark">
+                                    <i class="fa fa-refresh"></i>
+                                </button>`
+                            }
+                            <button class="text-gray-medium hover:text-dark delete-video-btn" data-video-id="${video.id}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            historyList.innerHTML = videoItems;
+            
+            // 为预览按钮添加事件监听器
+            document.querySelectorAll('.preview-video-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const videoId = e.currentTarget.getAttribute('data-video-id');
+                    const videoUrl = e.currentTarget.getAttribute('data-video-url');
+                    const videoTitle = e.currentTarget.getAttribute('data-video-title');
+                    openVideoPreview(videoId, videoUrl, videoTitle);
+                });
+            });
+            
+            // 为删除按钮添加事件监听器
+            document.querySelectorAll('.delete-video-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const videoId = e.currentTarget.getAttribute('data-video-id');
+                    deleteVideo(videoId);
+                });
+            });
+        }
+
+        // 获取状态样式类
+        function getStatusClass(status) {
+            switch (status) {
+                case 'completed':
+                    return 'bg-success/10 text-success';
+                case 'processing':
+                    return 'bg-warning/10 text-warning';
+                case 'failed':
+                    return 'bg-danger/10 text-danger';
+                default:
+                    return 'bg-gray-medium/10 text-gray-medium';
+            }
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            switch (status) {
+                case 'completed':
+                    return '已完成';
+                case 'processing':
+                    return '处理中';
+                case 'failed':
+                    return '已失败';
+                default:
+                    return status;
+            }
+        }
+
+        // 注册功能
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showNotification('注册成功', '您已成功注册，请登录', 'success');
+                    closeModal(registerModal);
+                    openModal(loginModal);
+                    registerForm.reset();
+                } else {
+                    showNotification('注册失败', data.error || '注册过程中出现错误', 'error');
+                }
+            } catch (error) {
+                console.error('注册失败:', error);
+                showNotification('错误', '无法连接到服务器', 'error');
+            }
+        });
+
+        // 登录功能
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    credentials: 'include', // 包含 cookies
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showNotification('登录成功', `欢迎回来，${data.username}`, 'success');
+                    closeModal(loginModal);
+                    loginForm.reset();
+                    checkAuthStatus(); // 更新UI
+                } else {
+                    showNotification('登录失败', data.error || '邮箱或密码不正确', 'error');
+                }
+            } catch (error) {
+                console.error('登录失败:', error);
+                showNotification('错误', '无法连接到服务器', 'error');
+            }
+        });
+
+        // 登出功能
+                logoutLink.addEventListener('click', async (e) => {
+                    e.preventDefault();
+        
+                    try {
+                        // 调用后端登出接口
+                        const response = await fetch(`${API_BASE_URL}/logout`, {
+                            method: 'POST',
+                            credentials: 'include', // 包含 cookies
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+        
+                        const data = await response.json();
+                        
+                        if (data.status === 'success') {
+                            showNotification('已登出', '您已成功退出登录', 'success');
+                        } else {
+                            showNotification('登出失败', data.error || '登出过程中出现错误', 'error');
+                        }
+                        
+                        checkAuthStatus(); // 更新UI
+                        // 登出后返回首页
+                        window.location.href = '/';
+                    } catch (error) {
+                        console.error('登出失败:', error);
+                        showNotification('错误', '登出过程中出现错误', 'error');
+                        // 即使后端调用失败，也更新UI
+                        checkAuthStatus();
+                        window.location.href = '/';
+                    }
+                });
+
+        // 删除视频功能
+        async function deleteVideo(videoId) {
+            if (!confirm('确定要删除这个视频吗？此操作不可撤销。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/videos/${videoId}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showNotification('删除成功', '视频已成功删除', 'success');
+                    // 重新加载数据
+                    loadDashboard();
+                    loadHistory();
+                } else {
+                    showNotification('删除失败', data.error || '删除视频过程中出现错误', 'error');
+                }
+            } catch (error) {
+                console.error('删除视频失败:', error);
+                showNotification('错误', '无法连接到服务器', 'error');
+            }
+        }
+
+        // 页面加载时检查认证状态
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('页面加载完成，开始检查认证状态');
+            console.log('DOM元素检查:');
+            console.log('loginBtn:', loginBtn);
+            console.log('registerBtn:', registerBtn);
+            console.log('mobileLoginBtn:', mobileLoginBtn);
+            console.log('mobileRegisterBtn:', mobileRegisterBtn);
+            console.log('userMenu:', userMenu);
+            checkAuthStatus();
+        });
+    </script>
+</body>
+</html>

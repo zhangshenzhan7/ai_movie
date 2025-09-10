@@ -1,0 +1,1489 @@
+<!-- 复制index.html内容到templates/index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 视频生成平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        // 配置 Tailwind 主题
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#7B61FF',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        dark: '#1D2129',
+                        'gray-medium': '#86909C',
+                        'gray-light': '#F2F3F5'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                        'hover': '0 20px 40px -5px rgba(0, 0, 0, 0.15)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .backdrop-blur {
+                backdrop-filter: blur(8px);
+            }
+            .transition-height {
+                transition: max-height 0.5s ease-in-out;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa fa-play-circle text-primary text-3xl"></i>
+                    <span class="text-xl font-bold bg-gradient-to-r from-primary to-secondary text-gradient">AI 视频生成</span>
+                </div>
+
+                <!-- 桌面导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-medium hover:text-primary transition-colors">功能</a>
+                    <a href="#how-it-works" class="text-gray-medium hover:text-primary transition-colors">使用方法</a>
+                    <a href="#examples" class="text-gray-medium hover:text-primary transition-colors">示例</a>
+                </nav>
+
+                <div class="flex items-center space-x-4">
+                    <!-- 登录/注册按钮 -->
+                    <button id="loginBtn" class="md:block px-5 py-2 rounded-full text-primary border border-primary hover:bg-primary/5 transition-colors">登录</button>
+                    <button id="registerBtn" class="md:block px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">注册</button>
+                    
+                    <!-- 用户菜单 -->
+                    <div id="userMenu" class="hidden items-center space-x-2 cursor-pointer group">
+                        <img id="userAvatar" src="https://picsum.photos/id/64/200/200" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary" onclick="window.location.href='/dashboard'">
+                        <span id="usernameDisplay" class="font-medium">用户名</span>
+                        <i class="fa fa-chevron-down text-xs text-gray-medium group-hover:text-primary transition-colors"></i>
+
+                        <!-- 下拉菜单 -->
+                        <div class="absolute right-4 mt-2 w-48 bg-white rounded-lg shadow-card py-2 z-50 hidden group-hover:block">
+                            <a href="/dashboard" class="block px-4 py-2 hover:bg-gray-light transition-colors">
+                                <i class="fa fa-history mr-2 text-gray-medium"></i>历史记录
+                            </a>
+                            <a href="#" id="logoutLink" class="block px-4 py-2 hover:bg-gray-light transition-colors">
+                                <i class="fa fa-sign-out mr-2 text-gray-medium"></i>退出登录
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 移动端菜单按钮 -->
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-medium hover:text-primary">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 移动端导航菜单 -->
+            <div id="mobileMenu" class="md:hidden hidden pb-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="#features" class="text-gray-medium hover:text-primary transition-colors py-2">功能</a>
+                    <a href="#how-it-works" class="text-gray-medium hover:text-primary transition-colors py-2">使用方法</a>
+                    <a href="#examples" class="text-gray-medium hover:text-primary transition-colors py-2">示例</a>
+                    <div class="flex space-x-3 pt-2">
+                        <button id="mobileLoginBtn" class="flex-1 px-4 py-2 rounded-full text-primary border border-primary hover:bg-primary/5 transition-colors">登录</button>
+                        <button id="mobileRegisterBtn" class="flex-1 px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors shadow-md">注册</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow pt-20">
+        <!-- 英雄区域 -->
+        <section class="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 md:py-24 overflow-hidden">
+            <div class="absolute top-0 right-0 w-full h-full overflow-hidden opacity-10">
+                <i class="fa fa-film absolute -right-20 -top-20 text-[300px] text-primary"></i>
+                <i class="fa fa-video-camera absolute right-1/4 bottom-0 text-[200px] text-secondary"></i>
+            </div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight mb-6">
+                        用文字或图片<br>
+                        <span class="bg-gradient-to-r from-primary to-secondary text-gradient">一键生成精美视频</span>
+                    </h1>
+                    <p class="text-gray-medium text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+                        只需输入描述或上传图片，我们的 AI 就能为您生成高质量视频，无需专业技能，人人都能成为视频创作者。
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button id="tryNowBtn" class="px-8 py-3 rounded-full bg-primary text-white text-lg font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                            立即尝试 <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                        <button class="px-8 py-3 rounded-full bg-white text-dark text-lg font-semibold border border-gray-200 hover:border-primary hover:text-primary transition-all shadow-md hover:shadow-lg">
+                            <i class="fa fa-play-circle mr-2"></i> 观看演示
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能卡片 -->
+        <section id="features" class="py-16 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">强大功能，简单操作</h2>
+                    <p class="text-gray-medium text-lg max-w-2xl mx-auto">我们提供多种视频生成方式，满足您的各种需求</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+                    <!-- 文本生成视频 -->
+                    <div class="bg-white rounded-2xl shadow-card p-8 hover:shadow-hover transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                        <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+                            <i class="fa fa-file-text-o text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">文本生成视频</h3>
+                        <p class="text-gray-medium mb-6">只需输入文字描述，AI 就能理解您的需求并生成相应的视频内容，创意无限。</p>
+                        <ul class="space-y-3 mb-6">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                                <span>支持详细场景描述</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                                <span>多种音色可选</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                                <span>自动合成完整视频</span>
+                            </li>
+                        </ul>
+                        <button id="textToVideoBtn" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors">
+                            开始创作
+                        </button>
+                    </div>
+
+                    <!-- 图片生成视频 -->
+                    <div class="bg-white rounded-2xl shadow-card p-8 hover:shadow-hover transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                        <div class="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-6">
+                            <i class="fa fa-picture-o text-2xl text-secondary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">图片生成视频</h3>
+                        <p class="text-gray-medium mb-6">上传您的图片，AI 会基于图片内容和您的描述生成动态视频，让静态图片活起来。</p>
+                        <ul class="space-y-3 mb-6">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                                <span>保留图片主体特征</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                                <span>支持人物、物体动作生成</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                                <span>自动适配场景转换</span>
+                            </li>
+                        </ul>
+                        <button id="imageToVideoBtn" class="w-full py-3 rounded-lg bg-secondary text-white font-semibold hover:bg-secondary/90 transition-colors">
+                            开始创作
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 使用流程 -->
+        <section id="how-it-works" class="py-16 bg-gray-light">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">简单三步，生成精彩视频</h2>
+                    <p class="text-gray-medium text-lg max-w-2xl mx-auto">无需复杂操作，轻松创建专业级视频内容</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+                    <div class="relative">
+                        <div class="bg-white rounded-2xl shadow-card p-8 h-full relative z-10">
+                            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                                <span class="text-2xl font-bold text-primary">01</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">输入您的创意</h3>
+                            <p class="text-gray-medium">
+                                用文字描述您想要的视频内容，或者上传一张图片作为基础，添加详细说明。
+                            </p>
+                        </div>
+                        <!-- 连接线 - 仅在桌面显示 -->
+                        <div class="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 w-full h-1 bg-primary/20 z-0"></div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="bg-white rounded-2xl shadow-card p-8 h-full relative z-10">
+                            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                                <span class="text-2xl font-bold text-primary">02</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">AI 生成视频</h3>
+                            <p class="text-gray-medium">
+                                我们的 AI 模型将处理您的请求，自动生成符合要求的视频内容，您可以实时查看进度。
+                            </p>
+                        </div>
+                        <!-- 连接线 - 仅在桌面显示 -->
+                        <div class="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 w-full h-1 bg-primary/20 z-0"></div>
+                    </div>
+
+                    <div>
+                        <div class="bg-white rounded-2xl shadow-card p-8 h-full">
+                            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                                <span class="text-2xl font-bold text-primary">03</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">下载与分享</h3>
+                            <p class="text-gray-medium">
+                                视频生成完成后，您可以直接下载到本地，或分享到各大社交平台。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 视频生成区域 -->
+        <section id="generator" class="py-16 bg-white hidden">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4" id="generatorTitle">文本生成视频</h2>
+                    <p class="text-gray-medium text-lg max-w-2xl mx-auto">输入您的创意描述，AI 将为您生成精彩视频</p>
+                </div>
+
+                <div class="max-w-3xl mx-auto">
+                    <!-- 生成选项卡 -->
+                    <div class="mb-8 border-b border-gray-200">
+                        <div class="flex">
+                            <button id="tabText" class="py-4 px-6 font-semibold text-primary border-b-2 border-primary">
+                                <i class="fa fa-file-text-o mr-2"></i>文本生成
+                            </button>
+                            <button id="tabImage" class="py-4 px-6 font-semibold text-gray-medium hover:text-primary">
+                                <i class="fa fa-picture-o mr-2"></i>图片生成
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 生成表单 -->
+                    <form id="generatorForm" class="bg-white rounded-2xl shadow-card p-6 md:p-8">
+                        <div class="mb-6">
+                            <label for="videoTitle" class="block text-sm font-medium text-gray-medium mb-2">视频标题</label>
+                            <input type="text" id="videoTitle" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="请输入视频标题，例如：小猫的一天">
+                            <p class="text-xs text-gray-medium mt-2">为您的视频设置一个吸引人的标题</p>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="videoDescription" class="block text-sm font-medium text-gray-medium mb-2">视频描述</label>
+                            <textarea id="videoDescription" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-none" placeholder="请详细描述您想要生成的视频内容，例如：一只小猫在花园里玩耍，阳光明媚，蝴蝶飞舞..."></textarea>
+                            <p class="text-xs text-gray-medium mt-2">描述越详细，生成效果越好</p>
+                        </div>
+
+                        <!-- 图片上传区域 (默认隐藏) -->
+                        <div id="imageUploadContainer" class="mb-6 hidden">
+                            <label class="block text-sm font-medium text-gray-medium mb-2">上传参考图片</label>
+                            <div id="imageUploadArea" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
+                                <input id="imageUpload" type="file" accept="image/*" class="hidden">
+                                <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-600">点击或拖拽图片到此处上传</p>
+                                <p class="text-xs text-gray-500 mt-1">支持 JPG、PNG 格式，最大 10MB</p>
+                                <img id="previewImage" src="" alt="预览图" class="hidden mt-4 max-w-full h-auto rounded-lg mx-auto">
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="apiKey" class="block text-sm font-medium text-gray-medium mb-2">DashScope API Key</label>
+                            <input type="text" id="apiKey" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="sk-...">
+                            <p class="text-xs text-gray-medium mt-2">您可以在 <a href="https://dashscope.aliyun.com/" target="_blank" class="text-primary hover:underline">阿里云 DashScope</a> 获取 API Key</p>
+                        </div>
+
+                        <button type="submit" id="generateBtn" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center">
+                            <i class="fa fa-magic mr-2"></i> 生成视频
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 生成进度区域 (默认隐藏) -->
+        <section id="progress" class="py-16 bg-white hidden">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">视频生成中</h2>
+                    <p class="text-gray-medium text-lg" id="progressMessage">请稍候，AI 正在努力为您生成视频...</p>
+                </div>
+
+                <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-card p-6 md:p-8">
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-medium" id="progressStep">准备中</span>
+                            <span class="text-sm font-medium text-primary" id="progressPercent">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-light rounded-full h-3">
+                            <div id="progressBar" class="bg-primary h-3 rounded-full w-0 transition-all duration-500"></div>
+                        </div>
+                    </div>
+
+                    <!-- 文案展示区域 -->
+                    <div id="copywritingSection" class="mb-6 hidden">
+                        <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                            <h3 class="font-bold text-blue-800 mb-2" id="generatedVideoTitle">视频标题</h3>
+                            <p class="text-gray-700" id="videoCopywriting">视频文案内容</p>
+                        </div>
+                    </div>
+
+                    <!-- 分镜脚本展示区域 -->
+                    <div id="storyboardSection" class="mb-6 hidden">
+                        <h3 class="font-bold text-lg mb-3">分镜脚本</h3>
+                        <div id="storyboardContent" class="space-y-4">
+                            <!-- 分镜脚本内容将通过 JavaScript 动态添加 -->
+                        </div>
+                    </div>
+
+                    <!-- 语音信息展示区域 -->
+                    <div id="audioSection" class="mb-6 hidden">
+                        <h3 class="font-bold text-lg mb-3">语音信息</h3>
+                        <div id="audioContent" class="space-y-2">
+                            <!-- 语音信息内容将通过 JavaScript 动态添加 -->
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center items-center py-8">
+                        <div id="loadingAnimation" class="text-center">
+                            <div class="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                            <p class="text-gray-medium" id="progressDetails">正在初始化生成任务...</p>
+                        </div>
+
+                        <div id="videoResult" class="hidden w-full">
+                            <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-6">
+                                <video id="resultVideo" controls class="w-full h-full object-contain">
+                                    您的浏览器不支持视频播放
+                                </video>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                                <a id="downloadVideoBtn" href="#" target="_blank" class="px-6 py-3 rounded-lg bg-success text-white font-semibold hover:bg-success/90 transition-colors flex items-center justify-center">
+                                    <i class="fa fa-download mr-2"></i> 下载视频
+                                </a>
+                                <button id="newVideoBtn" class="px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors">
+                                    <i class="fa fa-plus mr-2"></i> 生成新视频
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 历史记录区域 (默认隐藏) -->
+        <section id="history" class="py-16 bg-white hidden">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">我的视频历史</h2>
+                    <p class="text-gray-medium text-lg max-w-2xl mx-auto">查看和管理您生成的所有视频</p>
+                </div>
+
+                <div class="max-w-5xl mx-auto">
+                    <div id="historyList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- 历史记录项将通过 JavaScript 动态添加 -->
+                        <div class="text-center text-gray-medium py-12 col-span-full">
+                            <i class="fa fa-film text-5xl mb-4 opacity-30"></i>
+                            <p>您还没有生成任何视频</p>
+                            <button id="startCreatingBtn" class="mt-4 px-6 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors">
+                                开始创作
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 示例展示 -->
+        <section id="examples" class="py-16 bg-gray-light">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">精彩示例</h2>
+                    <p class="text-gray-medium text-lg max-w-2xl mx-auto">看看其他人用我们的平台生成了什么</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 示例 1 -->
+                    <div class="bg-white rounded-2xl shadow-card overflow-hidden hover:shadow-hover transition-all duration-300">
+                        <div class="aspect-video bg-gray-100 relative overflow-hidden">
+                            <img src="https://picsum.photos/id/96/600/400" alt="森林中的小鹿" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <button class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center">
+                                    <i class="fa fa-play text-primary text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg mb-2">森林中的小鹿</h3>
+                            <p class="text-gray-medium text-sm mb-4">一只小鹿在阳光明媚的森林中漫步，周围有小鸟和蝴蝶</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-medium">30 秒</span>
+                                <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">文本生成</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 示例 2 -->
+                    <div class="bg-white rounded-2xl shadow-card overflow-hidden hover:shadow-hover transition-all duration-300">
+                        <div class="aspect-video bg-gray-100 relative overflow-hidden">
+                            <img src="https://picsum.photos/id/26/600/400" alt="海滩日落" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <button class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center">
+                                    <i class="fa fa-play text-primary text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg mb-2">海滩日落</h3>
+                            <p class="text-gray-medium text-sm mb-4">金色的太阳缓缓沉入海平面，海浪轻轻拍打着沙滩</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-medium">45 秒</span>
+                                <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">文本生成</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 示例 3 -->
+                    <div class="bg-white rounded-2xl shadow-card overflow-hidden hover:shadow-hover transition-all duration-300">
+                        <div class="aspect-video bg-gray-100 relative overflow-hidden">
+                            <img src="https://picsum.photos/id/65/600/400" alt="卡通角色跳舞" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <button class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center">
+                                    <i class="fa fa-play text-primary text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg mb-2">卡通角色跳舞</h3>
+                            <p class="text-gray-medium text-sm mb-4">根据上传的卡通形象生成的跳舞视频，欢快的音乐背景</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-medium">20 秒</span>
+                                <span class="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full">图片生成</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <i class="fa fa-play-circle text-primary text-3xl"></i>
+                        <span class="text-xl font-bold">AI 视频生成</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        利用先进的人工智能技术，让视频创作变得简单高效。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                            <i class="fa fa-youtube-play"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">产品</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">文本生成视频</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">图片生成视频</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">视频编辑</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API 接口</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">定价</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">资源</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">帮助中心</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">教程</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">示例</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">博客</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">社区</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">公司</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">服务条款</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">加入我们</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500 text-sm">
+                <p>&copy; 2023 AI 视频生成平台. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 模态框 - 登录 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-card w-full max-w-md transform transition-all">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">登录</h3>
+                    <button id="closeLoginModal" class="text-gray-medium hover:text-dark">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-medium mb-2">邮箱</label>
+                        <input type="email" id="loginEmail" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-medium mb-2">密码</label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="请输入密码" required>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors mb-4">
+                        登录
+                    </button>
+
+                    <p class="text-center text-gray-medium">
+                        还没有账号? <button type="button" id="switchToRegister" class="text-primary font-medium hover:underline">立即注册</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框 - 注册 -->
+    <div id="registerModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-card w-full max-w-md transform transition-all">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">注册</h3>
+                    <button id="closeRegisterModal" class="text-gray-medium hover:text-dark">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <form id="registerForm">
+                    <div class="mb-4">
+                        <label for="registerUsername" class="block text-sm font-medium text-gray-medium mb-2">用户名</label>
+                        <input type="text" id="registerUsername" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="请输入用户名" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-medium mb-2">邮箱</label>
+                        <input type="email" id="registerEmail" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-medium mb-2">密码</label>
+                        <input type="password" id="registerPassword" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="至少 6 个字符" required>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors mb-4">
+                        注册
+                    </button>
+
+                    <p class="text-center text-gray-medium">
+                        已有账号? <button type="button" id="switchToLogin" class="text-primary font-medium hover:underline">立即登录</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div id="notification" class="fixed top-24 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50 flex items-start">
+        <div id="notificationIcon" class="mr-3 mt-0.5 text-success">
+            <i class="fa fa-check-circle text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <h4 id="notificationTitle" class="font-semibold text-dark">操作成功</h4>
+            <p id="notificationMessage" class="text-gray-medium text-sm mt-1">您的操作已成功完成</p>
+        </div>
+        <button id="closeNotification" class="text-gray-medium hover:text-dark ml-2">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <script>
+        // API 基础 URL
+        const API_BASE_URL = '';
+
+        // DOM 元素
+        const navbar = document.getElementById('navbar');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+        const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+        const userMenu = document.getElementById('userMenu');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const userAvatar = document.getElementById('userAvatar');
+        const logoutLink = document.getElementById('logoutLink');
+        const tryNowBtn = document.getElementById('tryNowBtn');
+        const textToVideoBtn = document.getElementById('textToVideoBtn');
+        const imageToVideoBtn = document.getElementById('imageToVideoBtn');
+        const startCreatingBtn = document.getElementById('startCreatingBtn');
+        const generatorSection = document.getElementById('generator');
+        const progressSection = document.getElementById('progress');
+        const historySection = document.getElementById('history');
+        const featuresSection = document.getElementById('features');
+        const generatorTitle = document.getElementById('generatorTitle');
+        const tabText = document.getElementById('tabText');
+        const tabImage = document.getElementById('tabImage');
+        const imageUploadContainer = document.getElementById('imageUploadContainer');
+        const imageUpload = document.getElementById('imageUpload');
+        const previewImage = document.getElementById('previewImage');
+        const generatorForm = document.getElementById('generatorForm');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressStep = document.getElementById('progressStep');
+        const progressDetails = document.getElementById('progressDetails');
+        const copywritingSection = document.getElementById('copywritingSection');
+        const videoTitle = document.getElementById('videoTitle');
+        const videoCopywriting = document.getElementById('videoCopywriting');
+        const storyboardSection = document.getElementById('storyboardSection');
+        const storyboardContent = document.getElementById('storyboardContent');
+        const audioSection = document.getElementById('audioSection');
+        const audioContent = document.getElementById('audioContent');
+        const loadingAnimation = document.getElementById('loadingAnimation');
+        const videoResult = document.getElementById('videoResult');
+        const resultVideo = document.getElementById('resultVideo');
+        const downloadVideoBtn = document.getElementById('downloadVideoBtn');
+        const newVideoBtn = document.getElementById('newVideoBtn');
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const closeRegisterModal = document.getElementById('closeRegisterModal');
+        const switchToRegister = document.getElementById('switchToRegister');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const notification = document.getElementById('notification');
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const closeNotification = document.getElementById('closeNotification');
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow');
+                navbar.classList.remove('py-4');
+            } else {
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2', 'shadow');
+            }
+        });
+
+        // 移动端菜单切换
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 模态框控制
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        loginBtn.addEventListener('click', () => openModal(loginModal));
+        registerBtn.addEventListener('click', () => openModal(registerModal));
+        mobileLoginBtn.addEventListener('click', () => {
+            openModal(loginModal);
+            mobileMenu.classList.add('hidden');
+        });
+        mobileRegisterBtn.addEventListener('click', () => {
+            openModal(registerModal);
+            mobileMenu.classList.add('hidden');
+        });
+        closeLoginModal.addEventListener('click', () => closeModal(loginModal));
+        closeRegisterModal.addEventListener('click', () => closeModal(registerModal));
+        switchToRegister.addEventListener('click', () => {
+            closeModal(loginModal);
+            openModal(registerModal);
+        });
+        switchToLogin.addEventListener('click', () => {
+            closeModal(registerModal);
+            openModal(loginModal);
+        });
+
+        // 点击模态框外部关闭
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) closeModal(loginModal);
+        });
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) closeModal(registerModal);
+        });
+
+        // 显示通知
+        function showNotification(title, message, type = 'success') {
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+
+            // 设置图标和颜色
+            notificationIcon.className = '';
+            if (type === 'success') {
+                notificationIcon.className = 'mr-3 mt-0.5 text-success';
+                notificationIcon.innerHTML = '<i class="fa fa-check-circle text-xl"></i>';
+            } else if (type === 'error') {
+                notificationIcon.className = 'mr-3 mt-0.5 text-danger';
+                notificationIcon.innerHTML = '<i class="fa fa-exclamation-circle text-xl"></i>';
+            } else if (type === 'warning') {
+                notificationIcon.className = 'mr-3 mt-0.5 text-warning';
+                notificationIcon.innerHTML = '<i class="fa fa-exclamation-triangle text-xl"></i>';
+            }
+
+            // 显示通知
+            notification.classList.remove('translate-x-full');
+
+            // 3秒后自动关闭
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        closeNotification.addEventListener('click', () => {
+            notification.classList.add('translate-x-full');
+        });
+
+        // 选项卡切换
+        tabText.addEventListener('click', () => {
+            tabText.classList.add('text-primary', 'border-b-2', 'border-primary');
+            tabText.classList.remove('text-gray-medium');
+            tabImage.classList.remove('text-primary', 'border-b-2', 'border-primary');
+            tabImage.classList.add('text-gray-medium');
+            imageUploadContainer.classList.add('hidden');
+            generatorTitle.textContent = '文本生成视频';
+        });
+
+        tabImage.addEventListener('click', () => {
+            tabImage.classList.add('text-primary', 'border-b-2', 'border-primary');
+            tabImage.classList.remove('text-gray-medium');
+            tabText.classList.remove('text-primary', 'border-b-2', 'border-primary');
+            tabText.classList.add('text-gray-medium');
+            imageUploadContainer.classList.remove('hidden');
+            generatorTitle.textContent = '图片生成视频';
+        });
+
+        // 图片上传预览
+        imageUpload.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewImage.classList.remove('hidden');
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // 点击上传区域触发文件选择
+        document.getElementById('imageUploadArea').addEventListener('click', () => {
+            imageUpload.click();
+        });
+
+        // 拖拽上传功能
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        
+        imageUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageUploadArea.classList.add('border-primary', 'bg-blue-50');
+        });
+        
+        imageUploadArea.addEventListener('dragleave', () => {
+            imageUploadArea.classList.remove('border-primary', 'bg-blue-50');
+        });
+        
+        imageUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageUploadArea.classList.remove('border-primary', 'bg-blue-50');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                // 检查文件类型
+                const file = e.dataTransfer.files[0];
+                if (!file.type.match('image.*')) {
+                    showNotification('文件类型错误', '请上传图片文件 (JPG、PNG)', 'error');
+                    return;
+                }
+                
+                // 检查文件大小 (10MB限制)
+                if (file.size > 10 * 1024 * 1024) {
+                    showNotification('文件过大', '图片大小不能超过10MB', 'error');
+                    return;
+                }
+                
+                // 设置文件到input元素
+                imageUpload.files = e.dataTransfer.files;
+                
+                // 触发change事件以显示预览
+                const event = new Event('change');
+                imageUpload.dispatchEvent(event);
+            }
+        });
+
+        // 区域显示控制
+        function showSection(section) {
+            generatorSection.classList.add('hidden');
+            progressSection.classList.add('hidden');
+            historySection.classList.add('hidden');
+            featuresSection.classList.remove('hidden');
+
+            if (section) {
+                section.classList.remove('hidden');
+                featuresSection.classList.add('hidden');
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        tryNowBtn.addEventListener('click', () => {
+            checkAuthStatus().then(authenticated => {
+                if (authenticated) {
+                    showSection(generatorSection);
+                    // 切换到文本生成选项卡
+                    tabText.click();
+                    // 滚动到视频生成区域
+                    generatorSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    openModal(loginModal);
+                    showNotification('提示', '请先登录后使用视频生成功能', 'warning');
+                }
+            });
+        });
+
+        textToVideoBtn.addEventListener('click', () => {
+            checkAuthStatus().then(authenticated => {
+                if (authenticated) {
+                    tabText.click(); // 切换到文本生成选项卡
+                    showSection(generatorSection);
+                } else {
+                    openModal(loginModal);
+                    showNotification('提示', '请先登录后使用视频生成功能', 'warning');
+                }
+            });
+        });
+
+        imageToVideoBtn.addEventListener('click', () => {
+            checkAuthStatus().then(authenticated => {
+                if (authenticated) {
+                    tabImage.click(); // 切换到图片生成选项卡
+                    showSection(generatorSection);
+                } else {
+                    openModal(loginModal);
+                    showNotification('提示', '请先登录后使用视频生成功能', 'warning');
+                }
+            });
+        });
+
+        startCreatingBtn.addEventListener('click', () => {
+            showSection(generatorSection);
+        });
+
+        newVideoBtn.addEventListener('click', () => {
+            showSection(generatorSection);
+            // 重置表单
+            generatorForm.reset();
+            previewImage.src = '';
+            previewImage.classList.add('hidden');
+        });
+
+        // 检查认证状态
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/check-auth`, {
+                    method: 'GET',
+                    credentials: 'include', // 包含 cookies
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // 检查HTTP状态码
+                if (!response.ok) {
+                    throw new Error(`HTTP错误: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('认证状态检查结果:', data); // 调试日志
+
+                if (data.authenticated) {
+                    // 用户已登录
+                    console.log('用户已登录，隐藏登录/注册按钮'); // 调试日志
+                    
+                    // 隐藏登录/注册按钮
+                    if (loginBtn) loginBtn.classList.add('hidden');
+                    if (registerBtn) registerBtn.classList.add('hidden');
+                    if (mobileLoginBtn) mobileLoginBtn.classList.add('hidden');
+                    if (mobileRegisterBtn) mobileRegisterBtn.classList.add('hidden');
+                    
+                    // 显示用户菜单
+                    if (userMenu) {
+                        userMenu.classList.remove('hidden');
+                        userMenu.classList.add('flex');
+                    }
+
+                    // 更新用户信息
+                    if (data.user && usernameDisplay) {
+                        usernameDisplay.textContent = data.user.username || data.user.email;
+                    }
+                    
+                    // 更新头像
+                    if (data.user && userAvatar) {
+                        userAvatar.src = `https://picsum.photos/id/${data.user.id % 100}/200/200`;
+                    }
+
+                    return true;
+                } else {
+                    // 用户未登录
+                    console.log('用户未登录，显示登录/注册按钮'); // 调试日志
+                    
+                    // 显示登录/注册按钮
+                    if (loginBtn) loginBtn.classList.remove('hidden');
+                    if (registerBtn) registerBtn.classList.remove('hidden');
+                    if (mobileLoginBtn) mobileLoginBtn.classList.remove('hidden');
+                    if (mobileRegisterBtn) mobileRegisterBtn.classList.remove('hidden');
+                    
+                    // 隐藏用户菜单
+                    if (userMenu) {
+                        userMenu.classList.add('hidden');
+                        userMenu.classList.remove('flex');
+                    }
+
+                    return false;
+                }
+            } catch (error) {
+                console.error('检查认证状态失败:', error);
+                
+                // 在出现错误时重置UI状态
+                console.log('检查认证状态出错，显示登录/注册按钮'); // 调试日志
+                
+                // 显示登录/注册按钮
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (registerBtn) registerBtn.classList.remove('hidden');
+                if (mobileLoginBtn) mobileLoginBtn.classList.remove('hidden');
+                if (mobileRegisterBtn) mobileRegisterBtn.classList.remove('hidden');
+                
+                // 隐藏用户菜单
+                if (userMenu) {
+                    userMenu.classList.add('hidden');
+                    userMenu.classList.remove('flex');
+                }
+                
+                showNotification('错误', '无法连接到服务器', 'error');
+                return false;
+            }
+        }
+
+        // 注册功能
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showNotification('注册成功', '您已成功注册，请登录', 'success');
+                    closeModal(registerModal);
+                    openModal(loginModal);
+                    registerForm.reset();
+                } else {
+                    showNotification('注册失败', data.error || '注册过程中出现错误', 'error');
+                }
+            } catch (error) {
+                console.error('注册失败:', error);
+                showNotification('错误', '无法连接到服务器', 'error');
+            }
+        });
+
+        // 登录功能
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    credentials: 'include', // 包含 cookies
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showNotification('登录成功', `欢迎回来，${data.username}`, 'success');
+                    closeModal(loginModal);
+                    loginForm.reset();
+                    checkAuthStatus(); // 更新UI
+                } else {
+                    showNotification('登录失败', data.error || '邮箱或密码不正确', 'error');
+                }
+            } catch (error) {
+                console.error('登录失败:', error);
+                showNotification('错误', '无法连接到服务器', 'error');
+            }
+        });
+
+        // 登出功能
+        logoutLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            try {
+                // 调用后端登出接口
+                const response = await fetch(`${API_BASE_URL}/logout`, {
+                    method: 'POST',
+                    credentials: 'include', // 包含 cookies
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showNotification('已登出', '您已成功退出登录', 'success');
+                } else {
+                    showNotification('登出失败', data.error || '登出过程中出现错误', 'error');
+                }
+                
+                checkAuthStatus(); // 更新UI
+                showSection(null); // 返回首页
+            } catch (error) {
+                console.error('登出失败:', error);
+                showNotification('错误', '登出过程中出现错误', 'error');
+                // 即使后端调用失败，也更新UI
+                checkAuthStatus();
+                showSection(null); // 返回首页
+            }
+        });
+
+        // 生成视频
+        generatorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('videoTitle').value;
+            const description = document.getElementById('videoDescription').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const isImageGeneration = !imageUploadContainer.classList.contains('hidden');
+            const imageFile = imageUpload.files[0];
+
+            // 表单验证
+            if (!title.trim()) {
+                showNotification('输入错误', '请输入视频标题', 'warning');
+                return;
+            }
+
+            if (!description.trim()) {
+                showNotification('输入错误', '请输入视频描述', 'warning');
+                return;
+            }
+
+            if (!apiKey.trim()) {
+                showNotification('输入错误', '请输入 DashScope API Key', 'warning');
+                return;
+            }
+
+            if (isImageGeneration && !imageFile) {
+                showNotification('输入错误', '请上传参考图片', 'warning');
+                return;
+            }
+
+            // 如果是图片生成，验证图片文件
+            if (isImageGeneration) {
+                // 检查文件类型
+                if (!imageFile.type.match('image.*')) {
+                    showNotification('文件类型错误', '请上传图片文件 (JPG、PNG)', 'error');
+                    return;
+                }
+                
+                // 检查文件大小 (10MB限制)
+                if (imageFile.size > 10 * 1024 * 1024) {
+                    showNotification('文件过大', '图片大小不能超过10MB', 'error');
+                    return;
+                }
+            }
+
+            try {
+                let response;
+
+                if (isImageGeneration) {
+                    // 图片生成视频
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('input', description);
+                    formData.append('character_image', imageFile);
+                    if (apiKey) {
+                        formData.append('dashscope_api_key', apiKey);
+                    }
+
+                    response = await fetch(`${API_BASE_URL}/generate-video-with-image`, {
+                        method: 'POST',
+                        credentials: 'include', // 包含 cookies
+                        body: formData
+                    });
+                } else {
+                    // 文本生成视频
+                    response = await fetch(`${API_BASE_URL}/generate-video`, {
+                        method: 'POST',
+                        credentials: 'include', // 包含 cookies
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: title,
+                            input: description,
+                            dashscope_api_key: apiKey
+                        })
+                    });
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'pending' && data.video_id) {
+                    // 视频生成已启动，显示进度页面
+                    showSection(progressSection);
+                    // 开始轮询进度
+                    pollVideoStatus(data.video_id);
+                } else {
+                    showNotification('生成失败', data.error || '视频生成请求失败', 'error');
+                }
+            } catch (error) {
+                console.error('生成视频失败:', error);
+                showNotification('错误', '无法连接到服务器', 'error');
+            }
+        });
+
+        // 轮询视频状态
+        function pollVideoStatus(videoId) {
+            // 重置进度显示
+            progressBar.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressStep.textContent = '准备中';
+            progressDetails.textContent = '正在初始化生成任务...';
+            loadingAnimation.classList.remove('hidden');
+            videoResult.classList.add('hidden');
+            
+            // 隐藏文案、分镜脚本和语音区域
+            copywritingSection.classList.add('hidden');
+            storyboardSection.classList.add('hidden');
+            audioSection.classList.add('hidden');
+
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/video-status/${videoId}`, {
+                        method: 'GET',
+                        credentials: 'include' // 包含 cookies
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'processing' || data.status === 'pending') {
+                        // 更新进度
+                        const progress = data.progress || 0;
+                        progressBar.style.width = `${progress}%`;
+                        progressPercent.textContent = `${progress}%`;
+                        progressStep.textContent = formatStep(data.current_step);
+                        progressDetails.textContent = data.details || '处理中...';
+                        
+                        // 如果有标题和文案，显示它们
+                        if (data.title || data.copywriting) {
+                            copywritingSection.classList.remove('hidden');
+                            if (data.title) {
+                                generatedVideoTitle.textContent = data.title;
+                            }
+                            if (data.copywriting) {
+                                videoCopywriting.textContent = data.copywriting;
+                            }
+                        }
+                        
+                        // 如果有分镜脚本，显示它们
+                        if (data.storyboard) {
+                            storyboardSection.classList.remove('hidden');
+                            renderStoryboard(data.storyboard);
+                        }
+                        
+                        // 如果有语音信息，显示它们
+                        if (data.audio_files) {
+                            audioSection.classList.remove('hidden');
+                            renderAudioFiles(data.audio_files);
+                        }
+                    } else if (data.status === 'completed') {
+                        // 生成完成
+                        clearInterval(interval);
+                        progressBar.style.width = '100%';
+                        progressPercent.textContent = '100%';
+                        progressStep.textContent = '已完成';
+                        progressDetails.textContent = data.details || '视频生成完成';
+
+                        // 显示视频结果
+                        loadingAnimation.classList.add('hidden');
+                        videoResult.classList.remove('hidden');
+                        
+                        // 设置视频源，确保URL是完整可访问的链接
+                        if (data.video_url) {
+                            let finalVideoUrl = data.video_url;
+                            // 确保视频URL是完整可访问的链接
+                            if (data.video_url && !data.video_url.startsWith('http')) {
+                                // 如果是相对路径，构建完整URL
+                                const baseUrl = window.location.origin;
+                                finalVideoUrl = baseUrl + (data.video_url.startsWith('/') ? data.video_url : '/' + data.video_url);
+                            }
+                            
+                            resultVideo.src = finalVideoUrl;
+                            downloadVideoBtn.href = finalVideoUrl;
+                        }
+                        
+                        // 如果有标题和文案，显示它们
+                        if (data.title || data.copywriting) {
+                            copywritingSection.classList.remove('hidden');
+                            if (data.title) {
+                                generatedVideoTitle.textContent = data.title;
+                            }
+                            if (data.copywriting) {
+                                videoCopywriting.textContent = data.copywriting;
+                            }
+                        }
+                        
+                        // 如果有分镜脚本，显示它们
+                        if (data.storyboard) {
+                            storyboardSection.classList.remove('hidden');
+                            renderStoryboard(data.storyboard);
+                        }
+                        
+                        // 如果有语音信息，显示它们
+                        if (data.audio_files) {
+                            audioSection.classList.remove('hidden');
+                            renderAudioFiles(data.audio_files);
+                        }
+                    } else if (data.status === 'failed') {
+                        // 生成失败
+                        clearInterval(interval);
+                        showNotification('生成失败', data.details || '视频生成失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('获取视频状态失败:', error);
+                    clearInterval(interval);
+                    showNotification('错误', '无法获取视频生成状态', 'error');
+                }
+            }, 3000); // 每3秒轮询一次
+        }
+
+        // 格式化步骤名称
+        function formatStep(step) {
+            switch (step) {
+                case 'generating_video_scenes':
+                    return '生成视频场景';
+                case 'completed':
+                    return '已完成';
+                default:
+                    return step.replace(/_/g, ' ');
+            }
+        }
+
+        // 渲染分镜脚本
+        function renderStoryboard(storyboard) {
+            // 清空现有内容
+            storyboardContent.innerHTML = '';
+            
+            // 遍历分镜脚本数组
+            storyboard.forEach((scene, index) => {
+                const sceneElement = document.createElement('div');
+                sceneElement.className = 'border border-gray-200 rounded-lg p-4';
+                
+                // 构建场景内容
+                let sceneContent = `
+                    <div class="flex items-center mb-2">
+                        <span class="inline-block w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center mr-2">${index + 1}</span>
+                        <span class="font-medium">场景 ${index + 1}</span>
+                    </div>
+                `;
+                
+                // 添加对话内容（如果存在）
+                if (scene.dialogue) {
+                    sceneContent += `
+                        <div class="mb-2">
+                            <span class="font-medium text-gray-700">对话:</span>
+                            <p class="ml-2 text-gray-600">${scene.dialogue}</p>
+                        </div>
+                    `;
+                }
+                
+                // 添加画面描述（如果存在）
+                if (scene.prompt) {
+                    sceneContent += `
+                        <div class="mb-2">
+                            <span class="font-medium text-gray-700">画面:</span>
+                            <p class="ml-2 text-gray-600">${scene.prompt}</p>
+                        </div>
+                    `;
+                }
+                
+                // 添加时长信息（如果存在）
+                if (scene.duration) {
+                    sceneContent += `
+                        <div>
+                            <span class="font-medium text-gray-700">时长:</span>
+                            <span class="ml-2 text-gray-600">${scene.duration}秒</span>
+                        </div>
+                    `;
+                }
+                
+                sceneElement.innerHTML = sceneContent;
+                storyboardContent.appendChild(sceneElement);
+            });
+        }
+
+        // 渲染语音文件信息
+        function renderAudioFiles(audioFiles) {
+            // 清空现有内容
+            audioContent.innerHTML = '';
+            
+            // 遍历语音文件数组
+            audioFiles.forEach((audio, index) => {
+                const audioElement = document.createElement('div');
+                audioElement.className = 'flex items-center p-3 bg-gray-50 rounded-lg';
+                
+                // 构建语音文件内容
+                let audioContentHTML = `
+                    <span class="inline-block w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center mr-3">${index + 1}</span>
+                `;
+                
+                // 添加文件路径或URL
+                if (audio.file_path) {
+                    audioContentHTML += `<span class="flex-1 text-gray-700 break-all">${audio.file_path}</span>`;
+                } else if (audio.url) {
+                    audioContentHTML += `<span class="flex-1 text-gray-700 break-all">${audio.url}</span>`;
+                } else {
+                    audioContentHTML += `<span class="flex-1 text-gray-700">音频文件 ${index + 1}</span>`;
+                }
+                
+                audioElement.innerHTML = audioContentHTML;
+                audioContent.appendChild(audioElement);
+            });
+        }
+
+        // 添加到历史记录
+        function addToHistory(videoId, videoUrl, description) {
+            const historyList = document.getElementById('historyList');
+
+            // 清除"没有历史记录"提示
+            if (historyList.querySelector('.col-span-full')) {
+                historyList.innerHTML = '';
+            }
+
+            // 确保视频URL是完整可访问的链接
+            let finalVideoUrl = videoUrl;
+            if (videoUrl && !videoUrl.startsWith('http')) {
+                // 如果是相对路径，构建完整URL
+                const baseUrl = window.location.origin;
+                finalVideoUrl = baseUrl + (videoUrl.startsWith('/') ? videoUrl : '/' + videoUrl);
+            }
+
+            // 创建历史记录项
+            const historyItem = document.createElement('div');
+            historyItem.className = 'bg-white rounded-2xl shadow-card overflow-hidden hover:shadow-hover transition-all duration-300';
+            historyItem.innerHTML = `
+                <div class="aspect-video bg-gray-100 relative overflow-hidden">
+                    <img src="https://picsum.photos/id/${videoId % 100}/600/400" alt="视频缩略图" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <a href="${finalVideoUrl}" target="_blank" class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center">
+                            <i class="fa fa-play text-primary text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-bold text-lg mb-2 truncate">${description.substring(0, 20)}${description.length > 20 ? '...' : ''}</h3>
+                    <p class="text-gray-medium text-sm mb-4">视频 ID: ${videoId}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-medium">${new Date().toLocaleString()}</span>
+                        <a href="${finalVideoUrl}" download target="_blank" class="text-xs bg-success/10 text-success px-2 py-1 rounded-full hover:bg-success/20 transition-colors">
+                            <i class="fa fa-download mr-1"></i> 下载
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            // 添加到历史记录列表开头
+            historyList.insertBefore(historyItem, historyList.firstChild);
+        }
+
+        // 页面加载时检查认证状态
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('页面加载完成，开始检查认证状态');
+            console.log('DOM元素检查:');
+            console.log('loginBtn:', loginBtn);
+            console.log('registerBtn:', registerBtn);
+            console.log('mobileLoginBtn:', mobileLoginBtn);
+            console.log('mobileRegisterBtn:', mobileRegisterBtn);
+            console.log('userMenu:', userMenu);
+            checkAuthStatus();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!-- 模态框 - 登录 -->
+<div id="loginModal" 
+     class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="loginModalTitle">
+    <div class="bg-white rounded-2xl shadow-card w-full max-w-md transform transition-all" role="document">
+        <div class="p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="loginModalTitle" class="text-2xl font-bold">登录</h3>
+                <button id="closeLoginModal" 
+                        class="text-gray-medium hover:text-dark focus-visible:focus"
+                        aria-label="关闭登录模态框">
+                    <i class="fa fa-times text-xl" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <form id="loginForm" novalidate>
+                <div class="mb-4">
+                    <label for="loginEmail" class="block text-sm font-medium text-gray-medium mb-2">
+                        邮箱 <span class="text-danger" aria-label="必填项">*</span>
+                    </label>
+                    <input type="email" 
+                           id="loginEmail" 
+                           name="email"
+                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" 
+                           placeholder="your@email.com" 
+                           required
+                           aria-describedby="loginEmailError"
+                           autocomplete="email">
+                    <div id="loginEmailError" class="text-danger text-sm mt-1 hidden" role="alert"></div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="loginPassword" class="block text-sm font-medium text-gray-medium mb-2">
+                        密码 <span class="text-danger" aria-label="必填项">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" 
+                               id="loginPassword" 
+                               name="password"
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" 
+                               placeholder="请输入密码" 
+                               required
+                               aria-describedby="loginPasswordError"
+                               autocomplete="current-password">
+                        <button type="button" 
+                                id="toggleLoginPassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-medium hover:text-dark focus-visible:focus"
+                                aria-label="显示/隐藏密码">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div id="loginPasswordError" class="text-danger text-sm mt-1 hidden" role="alert"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" 
+                               id="rememberMe" 
+                               name="remember_me"
+                               class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2">
+                        <span class="ml-2 text-sm text-gray-medium">记住我</span>
+                    </label>
+                </div>
+
+                <button type="submit" 
+                        id="loginSubmitBtn"
+                        class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors mb-4 focus-visible:focus disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        aria-describedby="loginFormError">
+                    <span class="login-btn-text">登录</span>
+                    <div class="login-spinner hidden ml-2">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+                
+                <div id="loginFormError" class="text-danger text-sm mb-4 hidden" role="alert"></div>
+
+                <div class="text-center">
+                    <p class="text-gray-medium mb-2">
+                        还没有账号? 
+                        <button type="button" 
+                                id="switchToRegister" 
+                                class="text-primary font-medium hover:underline focus-visible:focus">
+                            立即注册
+                        </button>
+                    </p>
+                    <p class="text-gray-medium text-sm">
+                        <a href="#" 
+                           class="text-primary hover:underline focus-visible:focus"
+                           id="forgotPasswordLink">
+                            忘记密码？
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

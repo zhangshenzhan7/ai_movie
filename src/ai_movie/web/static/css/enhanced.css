@@ -1,0 +1,379 @@
+/**
+ * Enhanced CSS for improved user experience and animations
+ */
+
+/* CSS Custom Properties for consistent theming */
+:root {
+  --primary: #165DFF;
+  --secondary: #7B61FF;
+  --success: #00B42A;
+  --warning: #FF7D00;
+  --danger: #F53F3F;
+  --dark: #1D2129;
+  --gray-medium: #86909C;
+  --gray-light: #F2F3F5;
+  
+  /* Animation settings */
+  --animation-fast: 150ms;
+  --animation-normal: 300ms;
+  --animation-slow: 500ms;
+  --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* Border radius */
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+}
+
+/* Reset and base improvements */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Focus improvements */
+.focus-visible:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Button enhancements */
+button, .btn {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: all var(--animation-normal) var(--animation-easing);
+}
+
+button:active, .btn:active {
+  transform: translateY(1px);
+}
+
+/* Ripple effect for buttons */
+button::before, .btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width var(--animation-normal) ease, height var(--animation-normal) ease;
+  z-index: 0;
+}
+
+button:active::before, .btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+button > *, .btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Spinner component */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-lg {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
+
+/* Progress bar animations */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+  background: var(--gray-light);
+  border-radius: var(--border-radius-lg);
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.2) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 30px 30px;
+  animation: progressShine 1s linear infinite;
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all var(--animation-normal) var(--animation-easing);
+  transform: translateZ(0);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Modal animations */
+.modal-backdrop {
+  animation: fadeIn var(--animation-normal) var(--animation-easing);
+}
+
+.modal-content {
+  animation: scaleIn var(--animation-normal) var(--animation-easing);
+}
+
+/* Notification animations */
+.notification-enter {
+  animation: slideInRight var(--animation-normal) var(--animation-easing);
+}
+
+.notification-exit {
+  animation: slideInRight var(--animation-normal) var(--animation-easing) reverse;
+}
+
+/* Form field enhancements */
+.form-field {
+  position: relative;
+}
+
+.form-field input:focus + .form-label {
+  transform: translateY(-20px) scale(0.85);
+  color: var(--primary);
+}
+
+.form-field input:not(:placeholder-shown) + .form-label {
+  transform: translateY(-20px) scale(0.85);
+}
+
+.form-label {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  transition: all var(--animation-normal) var(--animation-easing);
+  pointer-events: none;
+  background: white;
+  padding: 0 4px;
+}
+
+/* Input validation states */
+.input-valid {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px rgba(0, 180, 42, 0.1);
+}
+
+.input-invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(245, 63, 63, 0.1);
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Scroll improvements */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+.scroll-snap-y {
+  scroll-snap-type: y mandatory;
+}
+
+.scroll-snap-start {
+  scroll-snap-align: start;
+}
+
+/* Image loading effects */
+img {
+  transition: opacity var(--animation-normal) ease;
+}
+
+img.lazy {
+  opacity: 0;
+}
+
+img.lazy.loaded {
+  opacity: 1;
+}
+
+/* Hover glow effects */
+.glow-on-hover {
+  position: relative;
+  transition: all var(--animation-normal) ease;
+}
+
+.glow-on-hover::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, var(--primary), var(--secondary), var(--primary));
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--animation-normal) ease;
+  z-index: -1;
+}
+
+.glow-on-hover:hover::before {
+  opacity: 0.7;
+}
+
+/* Text animations */
+.text-gradient-animated {
+  background: linear-gradient(45deg, var(--primary), var(--secondary), var(--primary));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Floating animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  button, .btn, a, input, select, textarea {
+    min-height: 44px;
+  }
+  
+  /* Reduce animations on mobile for performance */
+  .reduce-motion {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --primary: #000080;
+    --secondary: #4B0082;
+    --danger: #8B0000;
+    --success: #006400;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  /* Dark mode styles can be added here */
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+}
