@@ -171,45 +171,6 @@ asyncio.run(generate_video_example())
 
 ## 🏢 系统架构
 
-### 项目结构
-
-```
-src/ai_movie/
-├── core/                    # 核心功能模块
-│   ├── config.py            # 配置管理
-│   ├── exceptions.py        # 异常处理
-│   ├── logging_config.py    # 日志配置
-│   ├── validation.py        # 数据验证
-│   └── video_workflow.py    # 主工作流
-├── nodes/                   # 处理节点
-│   ├── input_parsing.py     # 输入解析
-│   ├── copywriting_generation.py  # 文案生成
-│   ├── storyboard_generation.py   # 分镜脚本生成
-│   ├── voiceover_generation.py    # 配音生成
-│   ├── video_generation.py       # 视频生成
-│   ├── video_concatenation.py    # 视频拼接
-│   ├── bgm_addition.py          # 背景音乐添加
-│   ├── quality_check.py         # 质量检查
-│   ├── post_processing_node.py  # 后处理（OSS上传、清理）
-│   └── state.py                 # 状态定义
-├── web/                     # Web 应用
-│   ├── __init__.py          # Flask 应用初始化
-│   ├── routes.py            # 路由定义
-│   ├── models.py            # 数据库模型
-│   ├── templates/           # HTML 模板
-│   │   ├── base.html
-│   │   ├── index.html
-│   │   ├── dashboard.html
-│   │   └── ...
-│   └── static/              # 静态资源
-│       ├── css/
-│       └── js/
-├── utils/                   # 工具函数
-│   ├── oss.py               # OSS 存储工具
-│   └── utils.py             # 通用工具
-└── cli.py                   # 命令行工具
-```
-
 ### 技术架构
 
 ```mermaid
